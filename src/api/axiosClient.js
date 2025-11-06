@@ -1,18 +1,14 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080/api", // Spring Boot backend
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "http://localhost:8080/api",
+  headers: { "Content-Type": "application/json" },
 });
 
-// Her istekten önce token varsa Authorization header'ına ekle
+// JWT varsa header'a ekle
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const t = localStorage.getItem("token");
+  if (t) config.headers.Authorization = `Bearer ${t}`;
   return config;
 });
 
