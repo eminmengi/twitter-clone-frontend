@@ -1,19 +1,22 @@
 import { useState } from "react";
 import axiosClient from "../api/axiosClient";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-/** Koyu tema login formu */
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ context'ten al
   const [f, setF] = useState({ userNameOrEmail: "", password: "" });
 
   const submit = async (e) => {
     e.preventDefault();
+    // Backend login endpoint'i query param ile çalışıyor
     const url = `/auth/login?userNameOrEmail=${f.userNameOrEmail}&password=${f.password}`;
     const res = await axiosClient.post(url);
-    localStorage.setItem("token", res.data.accessToken);
-    // Basit yaklaşım: username'i inputtan yaz (JWT decode'ı sonra ekleyeceğiz)
-    localStorage.setItem("username", f.userNameOrEmail);
+
+    // ✅ token'ı context ile kaydet → user bilgisi otomatik çözülecek
+    login(res.data.accessToken);
+
     navigate("/my-tweets");
   };
 

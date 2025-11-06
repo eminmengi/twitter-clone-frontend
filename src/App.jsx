@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MyTweets from "./pages/MyTweets";
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ eklendi
 
 export default function App() {
   return (
@@ -24,7 +25,16 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/my-tweets" element={<MyTweets />} />
+
+              {/* 🔒 Korumalı rota */}
+              <Route
+                path="/my-tweets"
+                element={
+                  <ProtectedRoute>
+                    <MyTweets />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </main>
 

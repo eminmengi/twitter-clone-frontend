@@ -2,31 +2,31 @@ import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";
 import NewTweet from "../components/NewTweet";
 import TweetCard from "../components/TweetCard";
+import { useAuth } from "../context/AuthContext";
 
-/**
- * Profil timeline — login olan kullanıcının tweetleri.
- * İlk aşamada userName sabit olabilir; JWT decode ile dinamikleyeceğiz.
- */
 export default function MyTweets() {
+  const { user } = useAuth(); // ✅ user.userName buradan
   const [tweets, setTweets] = useState([]);
 
   const fetchTweets = async () => {
-    const userName = localStorage.getItem("username") || "eminm";
-    const res = await axiosClient.get(`/tweet/findByUserName/${userName}`);
+    if (!user?.userName) return;
+    const res = await axiosClient.get(`/tweet/findByUserName/${user.userName}`);
     setTweets(res.data);
   };
 
-  useEffect(() => { fetchTweets(); }, []);
+  useEffect(() => { fetchTweets(); }, [user?.userName]);
 
   return (
     <div>
-      <header className="px-4 py-3 text-xl font-bold sticky top-0 bg-xbg/80 backdrop-blur border-b border-xborder">
-        Profil
+      <header className="px-4 py-3 text-xl font-bold sticky top-0 bg-black/80 backdrop-blur border-b border-xborder">
+        Profil (@{user?.userName})
       </header>
 
-      <NewTweet onTweetAdded={(t) => setTweets((p) => [t, ...p])} />
+      {/* Yeni gönderi oluşturma */}
+      <NewTweet onTweetAdded={(t) => setTweets(prev => [t, ...prev])} />
 
-      {tweets.map((t) => <TweetCard key={t.id} tweet={t} />)}
+      {/* Gönderiler */}
+      {tweets.map(t => <TweetCard key={t.id} tweet={t} />)}
     </div>
   );
 }

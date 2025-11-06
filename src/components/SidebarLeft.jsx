@@ -1,9 +1,10 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function SidebarLeft() {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
-  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  const { token, logout } = useAuth(); // ✅ token & logout
 
   const navItem = (to, label) => (
     <Link
@@ -17,16 +18,10 @@ export default function SidebarLeft() {
     </Link>
   );
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   return (
     <div className="flex flex-col h-full justify-between py-6">
       <div>
-        <div className="px-6 pb-6 text-3xl font-bold text-xblue">𝕏</div>
-
+        <div className="px-6 pb-6 text-3xl font-bold text-xwhite">𝕏</div>
         <nav className="flex flex-col space-y-2">
           {navItem("/", "Ana Sayfa")}
           {navItem("/my-tweets", "Profil")}
@@ -38,7 +33,7 @@ export default function SidebarLeft() {
       {token && (
         <div className="px-6">
           <button
-            onClick={handleLogout}
+            onClick={() => { logout(); navigate("/login"); }}
             className="w-full bg-xblue hover:brightness-110 text-white rounded-full py-3 font-semibold"
           >
             Çıkış Yap

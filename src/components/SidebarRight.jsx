@@ -1,5 +1,5 @@
 export default function SidebarRight() {
-  const trends = ["#UCL", "#SabriSarıoğlu", "#OkanBuruk"];
+  const trends = ["#Sed vel velit dui", "#Pellentesque sed tincidunt leo", "#Consectetur"];
 
   return (
     <div className="space-y-4 mt-4">

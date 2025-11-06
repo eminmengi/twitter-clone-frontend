@@ -1,50 +1,42 @@
+// src/components/NewTweet.jsx
 import { useState } from "react";
 import axiosClient from "../api/axiosClient";
 
-/**
- * Tweet kompoz alanı — üstte, X'e benzer minimal alan.
- */
 export default function NewTweet({ onTweetAdded }) {
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState("");
 
-  const submit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!text.trim()) return;
+
     try {
-      setLoading(true);
-      const res = await axiosClient.post("/tweet", { content });
+      // ✅ Tweet atma isteği
+      const res = await axiosClient.post("/tweet", { content: text.trim() });
       onTweetAdded?.(res.data);
-      setContent("");
-    } catch {
-      alert("Gönderilemedi");
-    } finally {
-      setLoading(false);
+      setText("");
+    } catch (err) {
+      console.error("Tweet gönderilirken hata:", err);
+      alert("Tweet gönderilemedi 😔");
     }
   };
 
   return (
-    <div className="border-b border-xborder px-4 py-3">
-      <form onSubmit={submit} className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-[#16181c]" />
-        <div className="flex-1">
-          <textarea
-            className="w-full bg-transparent outline-none placeholder-xmuted text-xl resize-none"
-            rows="2"
-            placeholder="Neler oluyor?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          <div className="flex justify-end">
-            <button
-              disabled={loading}
-              className="bg-xblue hover:brightness-110 disabled:opacity-60 text-white rounded-full px-4 py-2 font-semibold"
-            >
-              {loading ? "Gönderiliyor…" : "Gönderi yayınla"}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="border-b border-gray-700 p-3">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Neler oluyor?"
+        rows={3}
+        className="w-full bg-transparent outline-none resize-none text-white placeholder-gray-400"
+      />
+      <div className="flex justify-end mt-2">
+        <button
+          type="submit"
+          className="bg-sky-500 hover:bg-sky-600 px-4 py-1.5 rounded-full font-semibold text-white"
+        >
+          Tweetle
+        </button>
+      </div>
+    </form>
   );
 }

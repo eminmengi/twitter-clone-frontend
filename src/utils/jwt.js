@@ -1,0 +1,24 @@
+// JWT payload'ı decode eder (base64 → JSON)
+export function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+// Bizim backend'de 'sub' alanı userName olarak geliyor.
+// Gerekirse ileride özel claim ekleyebiliriz.
+export function getUserFromToken(token) {
+  const payload = parseJwt(token);
+  if (!payload) return null;
+  return { userName: payload.sub };
+}
