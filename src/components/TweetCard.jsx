@@ -3,10 +3,15 @@ import { useAuth } from "../context/AuthContext";
 import axiosClient from "../api/axiosClient";
 import { useState, useEffect } from "react";
 
-export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitially = false }) {
+export default function TweetCard({
+  tweet,
+  onDelete,
+  onClick,
+  showCommentsInitially = false,
+  onRetweet, // ✅ Retweet handler
+}) {
   const { user } = useAuth();
 
-  // 🧠 Başlangıç durumları
   const [liked, setLiked] = useState(tweet.likedByCurrentUser || false);
   const [likeCount, setLikeCount] = useState(tweet.totalLikes || 0);
   const [retweeted, setRetweeted] = useState(tweet.retweetedByCurrentUser || false);
@@ -16,7 +21,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
   const [comments, setComments] = useState([]);
   const [commentCount, setCommentCount] = useState(tweet.totalComments || 0);
 
-  // 💬 Yorumları yükle
   const fetchComments = async () => {
     try {
       const res = await axiosClient.get(`/comment/tweet/${tweet.id}`);
@@ -30,7 +34,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     if (showCommentBox) fetchComments();
   }, [showCommentBox]);
 
-  // 🕓 Tarih biçimi
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleString("tr-TR", {
       day: "2-digit",
@@ -39,7 +42,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
       minute: "2-digit",
     });
 
-  // 🗑️ Tweet silme
   const handleDelete = async (e) => {
     e?.stopPropagation();
     if (!window.confirm("Bu tweeti silmek istediğine emin misin?")) return;
@@ -51,7 +53,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     }
   };
 
-  // ❤️ Beğeni toggle
   const toggleLike = async (e) => {
     e.stopPropagation();
     try {
@@ -69,14 +70,15 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     }
   };
 
-  // 🔁 Retweet toggle
+  // 🔁 RT güncellendi
   const toggleRetweet = async (e) => {
     e.stopPropagation();
     try {
       if (!retweeted) {
-        await axiosClient.post(`/retweet/${tweet.id}`);
+        const res = await axiosClient.post(`/retweet/${tweet.id}`);
         setRetweeted(true);
         setRetweetCount((p) => p + 1);
+        if (onRetweet) onRetweet(res.data);
       } else {
         await axiosClient.delete(`/retweet/${tweet.id}`);
         setRetweeted(false);
@@ -87,7 +89,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     }
   };
 
-  // 💬 Yorum ekleme
   const handleAddComment = async () => {
     const trimmed = comment.trim();
     if (!trimmed) return;
@@ -101,7 +102,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     }
   };
 
-  // ⌨️ Enter ile gönderme
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -109,7 +109,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
     }
   };
 
-  // 🗑️ Yorum silme
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm("Bu yorumu silmek istiyor musun?")) return;
     try {
@@ -127,7 +126,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
       onClick={onClick}
     >
       <div className="flex gap-3">
-        {/* Profil resmi */}
         <img
           src={
             tweet.avatar ||
@@ -138,7 +136,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
         />
 
         <div className="flex-1">
-          {/* Üst bilgi */}
           <div className="flex items-center justify-between">
             <div>
               <span className="font-semibold text-white mr-1">{tweet.userName}</span>
@@ -157,12 +154,18 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
             )}
           </div>
 
-          {/* Tweet içeriği */}
+          {/* ✅ Retweet etiketi */}
+          {tweet.content?.startsWith("@") && (
+            <div className="text-gray-500 text-sm flex items-center gap-1 mb-1">
+              <Repeat2 size={14} />
+              <span>{user?.userName} tarafından retweetlendi</span>
+            </div>
+          )}
+
           <p className="mt-1 text-[15px] text-gray-200 whitespace-pre-wrap break-words">
             {tweet.content}
           </p>
 
-          {/* Aksiyonlar */}
           <div className="flex justify-between mt-3 text-gray-500 max-w-[300px]">
             <button
               onClick={(e) => {
@@ -195,7 +198,6 @@ export default function TweetCard({ tweet, onDelete, onClick, showCommentsInitia
             </button>
           </div>
 
-          {/* 💬 Yorum alanı */}
           {showCommentBox && (
             <div className="mt-3" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-2">

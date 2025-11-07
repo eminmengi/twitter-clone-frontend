@@ -5,7 +5,7 @@ import TweetCard from "../components/TweetCard";
 import { useAuth } from "../context/AuthContext";
 
 export default function MyTweets() {
-  const { user } = useAuth(); // ✅ user.userName buradan
+  const { user } = useAuth();
   const [tweets, setTweets] = useState([]);
 
   const fetchTweets = async () => {
@@ -14,7 +14,14 @@ export default function MyTweets() {
     setTweets(res.data);
   };
 
-  useEffect(() => { fetchTweets(); }, [user?.userName]);
+  useEffect(() => {
+    fetchTweets();
+  }, [user?.userName]);
+
+  // 🔁 RT sonrası yeni tweet'i profil listesine ekle
+  const handleRetweet = (newRetweet) => {
+    setTweets((prev) => [newRetweet, ...prev]);
+  };
 
   return (
     <div>
@@ -22,11 +29,15 @@ export default function MyTweets() {
         Profil (@{user?.userName})
       </header>
 
-      {/* Yeni gönderi oluşturma */}
-      <NewTweet onTweetAdded={(t) => setTweets(prev => [t, ...prev])} />
+      <NewTweet onTweetAdded={(t) => setTweets((prev) => [t, ...prev])} />
 
-      {/* Gönderiler */}
-      {tweets.map(t => <TweetCard key={t.id} tweet={t} />)}
+      {tweets.map((t) => (
+        <TweetCard
+          key={t.id}
+          tweet={t}
+          onRetweet={handleRetweet} // ✅ eklendi
+        />
+      ))}
     </div>
   );
 }
