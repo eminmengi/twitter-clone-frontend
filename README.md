@@ -116,5 +116,4 @@ src/
 
 ## 🧾 Lisans
 
-Bu proje eğitim amaçlı hazırlanmıştır.  
-MIT Lisansı altında serbestçe kullanılabilir.
+Bu proje eğitim amaçlı hazırlanmıştır.

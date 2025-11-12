@@ -1,12 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Home, User, LogIn, LogOut } from "lucide-react"; // ✅ Eklenen ikonlar
+import { Home, User, LogIn, LogOut } from "lucide-react";
 
 export default function MobileTabBar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { token, logout } = useAuth(); // ✅ Giriş durumu ve çıkış fonksiyonu
-
+  const { token, logout } = useAuth();
+  // eslint-disable-next-line no-unused-vars
   const Item = ({ to, Icon, onClick }) => (
     <Link
       to={to}
